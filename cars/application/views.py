@@ -9,7 +9,7 @@ from rest_framework import status
 class CarList(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
+        self.__offset = 1000
         self.__queryset = Car.objects.all()
         self.__serializer_class = CarSerializer
 
@@ -21,7 +21,10 @@ class CarList(APIView):
     def serializer_class(self):
         return self.__serializer_class
 
-    def get(self, request, id=None):
+    def get(self, request, page=None):
+        if page is None:
+            page = 0
+        id = request.query_params.get('id', None)
         if id:
             entity = self.__queryset.get(id=id)
             serializer = self.__serializer_class(entity)
@@ -33,12 +36,12 @@ class CarList(APIView):
         year = request.query_params.get('year', None)
         if year:
             self.__queryset = self.__queryset.filter(year__gte=year)
-        items = self.__queryset
+        items = self.__queryset.order_by('id')[page * self.__offset: (page + 1) * self.__offset]
         serializer = self.__serializer_class(items, many=True)
         return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
 
-    def post(self, request, id=False):
-        if id:
+    def post(self, request, more=False):
+        if more:
             data = request.data
             datastr = data['data']
             datastr = datastr.split(",")
@@ -49,7 +52,7 @@ class CarList(APIView):
                     Buyer.objects.create(first_name=serializer.get(id=cast).first_name,
                                          last_name=serializer.get(id=cast).last_name,
                                          age=serializer.get(id=cast).age, sex=serializer.get(id=cast).sex,
-                                         car_id=id)
+                                         car_id=more)
             return Response({"status": "success", "serializer": ""},
                             status=status.HTTP_201_CREATED)
         serializer = self.__serializer_class(data=request.data)
@@ -59,16 +62,21 @@ class CarList(APIView):
         else:
             return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-    def patch(self, request, id=None):
-        item = self.__queryset.get(id=id)
-        serializer = self.__serializer_class(item, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+    def patch(self, request):
+        id = request.query_params.get('id', None)
+        if id:
+            item = self.__queryset.get(id=id)
+            serializer = self.__serializer_class(item, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+            else:
+                return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"status": "error", "data": "no id specified"}, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, id=None):
+    def delete(self, request):
+        id = request.query_params.get('id', None)
         if not id:
             return Response({"status": "error", "data": "ID not specified"}, status=status.HTTP_400_BAD_REQUEST)
         item = self.__queryset.get(id=id)
@@ -80,6 +88,7 @@ class BuyerList(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        self.__offset = 1000
         self.__queryset = Buyer.objects.all()
         self.__serializer_class = BuyerSerializer
 
@@ -91,7 +100,10 @@ class BuyerList(APIView):
     def serializer_class(self):
         return self.__serializer_class
 
-    def get(self, request, id=None):
+    def get(self, request, page=None):
+        if page is None:
+            page = 0
+        id = request.query_params.get('id', None)
         if id:
             car = self.__queryset.get(id=id)
             serializer = self.__serializer_class(car)
@@ -99,7 +111,7 @@ class BuyerList(APIView):
             cars_serializer = CarSerializer(cars, many=True)
             return Response({"status": "success", "buyers": serializer.data, "cars": cars_serializer.data},
                             status=status.HTTP_200_OK)
-        items = self.__queryset
+        items = self.__queryset.order_by('id')[page * self.__offset: (page + 1) * self.__offset]
         serializer = self.__serializer_class(items, many=True)
         return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
 
@@ -111,16 +123,21 @@ class BuyerList(APIView):
         else:
             return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-    def patch(self, request, id=None):
-        item = self.__queryset.get(id=id)
-        serializer = self.__serializer_class(item, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+    def patch(self, request):
+        id = request.query_params.get('id', None)
+        if id:
+            item = self.__queryset.get(id=id)
+            serializer = self.__serializer_class(item, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+            else:
+                return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"status": "error", "data": "no id specified"}, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, id=None):
+    def delete(self, request):
+        id = request.query_params.get('id', None)
         if not id:
             return Response({"status": "error", "data": "ID not specified"}, status=status.HTTP_400_BAD_REQUEST)
         item = self.__queryset.get(id=id)
@@ -132,6 +149,7 @@ class DeliveryList(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        self.__offset = 1000
         self.__queryset = DeliveryService.objects.all()
         self.__serializer_class = DeliverySerializer
 
@@ -143,12 +161,15 @@ class DeliveryList(APIView):
     def serializer_class(self):
         return self.__serializer_class
 
-    def get(self, request, id=None):
+    def get(self, request, page=None):
+        if page is None:
+            page = 0
+        id = request.query_params.get('id', None)
         if id:
             car = self.__queryset.get(id=id)
             serializer = self.__serializer_class(car)
             return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
-        items = self.__queryset
+        items = self.__queryset.order_by('id')[page * self.__offset: (page + 1) * self.__offset]
         serializer = self.__serializer_class(items, many=True)
         return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
 
@@ -160,16 +181,21 @@ class DeliveryList(APIView):
         else:
             return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-    def patch(self, request, id=None):
-        item = self.__queryset.get(id=id)
-        serializer = self.__serializer_class(item, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+    def patch(self, request):
+        id = request.query_params.get('id', None)
+        if id:
+            item = self.__queryset.get(id=id)
+            serializer = self.__serializer_class(item, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+            else:
+                return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"status": "error", "data": "no id specified"}, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, id=None):
+    def delete(self, request):
+        id = request.query_params.get('id', None)
         if not id:
             return Response({"status": "error", "data": "ID not specified"}, status=status.HTTP_400_BAD_REQUEST)
         item = self.__queryset.get(id=id)
@@ -178,9 +204,10 @@ class DeliveryList(APIView):
 
 
 class CarToBuyer(APIView):
-    def _init_(self, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        self.__offset = 1000
         self.__model = DeliveryService
         self.__queryset = self.__model.objects.all()
         self.__serializer_class = DeliverySerializer
@@ -246,16 +273,18 @@ class CarToBuyer(APIView):
 class StatisticsView(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.__stats = {
+        self.__offset = 1000
+        self.stats = {
             1: self.__young_drivers,
             2: self.__old_but_young_heart,
         }
 
     @staticmethod
-    def __young_drivers(request):
-        buyers = Buyer.objects.all().order_by('age').filter(age__lte=40)
+    def __young_drivers(request, page, offset):
+        buyers = Buyer.objects.all().order_by('age').filter(age__lte=40)[
+                 page * offset: (page + 1) * offset]
         response = {}
-        i = 0
+        i = page * offset
         for buyer in buyers:
             i += 1
             response[i] = {
@@ -268,10 +297,11 @@ class StatisticsView(APIView):
         return Response({"status": "success", "young_drivers": response}, status=status.HTTP_200_OK)
 
     @staticmethod
-    def __old_but_young_heart(request):
-        buyers = Buyer.objects.all().filter(age__gte=30).order_by('age')
+    def __old_but_young_heart(request, page, offset):
+        buyers = Buyer.objects.all().filter(age__gte=30).order_by('age')[
+                 page * offset: (page + 1) * offset]
         response = {}
-        i = 0
+        i = page * offset
         for buyer in buyers:
             if buyer.car.transmission_type != "A":
                 i += 1
@@ -284,9 +314,11 @@ class StatisticsView(APIView):
                 }
         return Response({"status": "success", "old_but_young_heart": response}, status=status.HTTP_200_OK)
 
-    def get(self, request, id=None):
-        if not id or id not in self.__stats:
-            return Response({"status": "error", "available keys": self.__stats.keys()},
+    def get(self, request, id=None, page=None):
+        if page is None:
+            page = 0
+        if not id or id not in self.stats:
+            return Response({"status": "error", "available keys": self.stats.keys()},
                             status=status.HTTP_400_BAD_REQUEST)
         else:
-            return self.__stats[id](request)
+            return self.stats[id](request, page, self.__offset)
