@@ -52,3 +52,9 @@ class DeliveryService(models.Model):
 
     def __str__(self):
         return str(self.id) + ' ' + str(self.car) + ' ' + str(self.buyer)
+
+
+class Company(models.Model):
+    name = models.CharField(blank=True, max_length=200)
+    owner = models.CharField(blank=True, max_length=100)
+    number_of_employees = models.IntegerField(blank=True, default=1)

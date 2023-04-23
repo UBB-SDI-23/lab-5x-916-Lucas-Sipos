@@ -22,6 +22,9 @@ urlpatterns = [
     path("cars/<int:car_id>/buyers/<int:buyer_id>/", CarToBuyer.as_view()),
     path("buyers/<int:buyer_id>/cars/", CarToBuyer.as_view()),
     path("buyers/<int:buyer_id>/cars/<int:car_id>/", CarToBuyer.as_view()),
+
+    path('company/', CompanyList.as_view()),
+    path('company/<int:page>/', CompanyList.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

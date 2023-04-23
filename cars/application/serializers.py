@@ -33,3 +33,9 @@ class DeliverySerializer(serializers.ModelSerializer):
     class Meta:
         model = DeliveryService
         fields = '__all__'
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = '__all__'

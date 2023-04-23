@@ -66,7 +66,7 @@ export const EditCar = () => {
 
                         <TextField
                             id="fuel_type"
-                            label="Fuel Type"
+                            label="Fuel Type (G, D, BD, E)"
                             variant="outlined"
                             fullWidth
                             sx={{mb: 2}}
@@ -75,7 +75,7 @@ export const EditCar = () => {
 
                         <TextField
                             id="cc"
-                            label="CC (M, A, C)"
+                            label="CC"
                             variant="outlined"
                             fullWidth
                             sx={{mb: 2}}
@@ -93,7 +93,7 @@ export const EditCar = () => {
 
                         <TextField
                             id="transmission_type"
-                            label="Transmission Type (G, D, BD, E)"
+                            label="Transmission Type (M, A, C)"
                             variant="outlined"
                             fullWidth
                             sx={{mb: 2}}

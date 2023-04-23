@@ -1,7 +1,7 @@
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
-from .models import Car, Buyer, DeliveryService
-from .serializers import CarSerializer, BuyerSerializer, DeliverySerializer
+from .models import Car, Buyer, DeliveryService, Company
+from .serializers import CarSerializer, BuyerSerializer, DeliverySerializer, CompanySerializer
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -322,3 +322,61 @@ class StatisticsView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
         else:
             return self.stats[id](request, page, self.__offset)
+
+
+class CompanyList(APIView):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.__offset = 1000
+        self.__queryset = Company.objects.all()
+        self.__serializer_class = CompanySerializer
+
+    @property
+    def queryset(self):
+        return self.__queryset
+
+    @property
+    def serializer_class(self):
+        return self.__serializer_class
+
+    def get(self, request, page=None):
+        if page is None:
+            page = 0
+        id = request.query_params.get('id', None)
+        if id:
+            car = self.__queryset.get(id=id)
+            serializer = self.__serializer_class(car)
+            return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+        items = self.__queryset.order_by('id')[page * self.__offset: (page + 1) * self.__offset]
+        serializer = self.__serializer_class(items, many=True)
+        return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = self.__serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": "success", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        id = request.query_params.get('id', None)
+        if id:
+            item = self.__queryset.get(id=id)
+            serializer = self.__serializer_class(item, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+            else:
+                return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"status": "error", "data": "no id specified"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        id = request.query_params.get('id', None)
+        if not id:
+            return Response({"status": "error", "data": "ID not specified"}, status=status.HTTP_400_BAD_REQUEST)
+        item = self.__queryset.get(id=id)
+        item.delete()
+        return Response({"status": "success", "data": "Item deleted"}, status=status.HTTP_200_OK)

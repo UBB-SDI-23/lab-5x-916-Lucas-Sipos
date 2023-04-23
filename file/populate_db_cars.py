@@ -18,9 +18,11 @@ if __name__ == '__main__':
     file_name = "car_"
     file_ext = ".sql"
 
-    header = "INSERT INTO application_car (MODEL, YEAR, FUEL_TYPE, CC, HP, TRANSMISSION_TYPE)  VALUES"
+    header = "INSERT INTO application_car (MODEL, YEAR, FUEL_TYPE, CC, HP, TRANSMISSION_TYPE) VALUES"
     for j in range(times):
-        with open(f"/home/lucas/ubumbu/university/UNI/Semester 4/SDI/lab-5x-916-Lucas-Sipos/file/cars/{file_name}{j}{file_ext}", "w") as file:
+        with open(
+                f"/home/lucas/ubumbu/university/UNI/Semester 4/SDI/lab-5x-916-Lucas-Sipos/file/cars/{file_name}{j}{file_ext}",
+                "w") as file:
             print(header, file=file)
             for i in range(n):
                 if i != n - 1:
@@ -31,4 +33,4 @@ if __name__ == '__main__':
                     print(
                         f"('{random.choice(model)}',{fake.year()},'{random.choice(fuel_type)}','{round(random.uniform(0.0, 9.9), 1)}','{random.randrange(80, 1200)}','{random.choice(transmission_type)}')",
                         file=file)
-        print(f"{j+1}/{times}")
+        print(f"{j + 1}/{times}")
