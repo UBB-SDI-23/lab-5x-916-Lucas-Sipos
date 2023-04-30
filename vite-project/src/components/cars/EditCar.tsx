@@ -24,7 +24,7 @@ export const EditCar = () => {
     const editCar = async (event: { preventDefault: () => void }) => {
             event.preventDefault();
             try {
-                await axios.patch(`${BACKEND_API_URL}/cars/${carID}/`, car, {
+                await axios.patch(`${BACKEND_API_URL}cars/?id=${carID}`, car, {
                     headers: {
                         'Content-Type': 'application/json'
                     }

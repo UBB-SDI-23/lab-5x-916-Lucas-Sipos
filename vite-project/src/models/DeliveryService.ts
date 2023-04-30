@@ -8,6 +8,6 @@ export interface DeliveryService {
     date: string;
     pickup: boolean;
     details: string;
-    car: Cars[];
-    buyer: Buyers[];
+    car: number;
+    buyer: number;
 }

@@ -10,7 +10,7 @@ import axios from "axios";
 export const AddCar = () => {
     const navigate = useNavigate();
 
-    const [car, setEmail] = useState<Cars>({
+    const [car, setCar] = useState<Cars>({
         model: "",
         year: 2000,
         fuel_type: "",
@@ -22,7 +22,7 @@ export const AddCar = () => {
     const addCar = async (event: { preventDefault: () => void }) => {
         event.preventDefault();
         try {
-            await axios.post(`${BACKEND_API_URL}/cars/`, car, {
+            await axios.post(`${BACKEND_API_URL}cars/`, car, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -48,7 +48,7 @@ export const AddCar = () => {
                             variant="outlined"
                             fullWidth
                             sx={{mb: 2}}
-                            onChange={(event) => setEmail({...car, model: event.target.value})}
+                            onChange={(event) => setCar({...car, model: event.target.value})}
                         />
 
                         <TextField
@@ -57,7 +57,7 @@ export const AddCar = () => {
                             variant="outlined"
                             fullWidth
                             sx={{mb: 2}}
-                            onChange={(event) => setEmail({...car, year: +event.target.value})}
+                            onChange={(event) => setCar({...car, year: +event.target.value})}
                         />
 
                         <TextField
@@ -66,7 +66,7 @@ export const AddCar = () => {
                             variant="outlined"
                             fullWidth
                             sx={{mb: 2}}
-                            onChange={(event) => setEmail({...car, fuel_type: event.target.value})}
+                            onChange={(event) => setCar({...car, fuel_type: event.target.value})}
                         />
 
                         <TextField
@@ -75,7 +75,7 @@ export const AddCar = () => {
                             variant="outlined"
                             fullWidth
                             sx={{mb: 2}}
-                            onChange={(event) => setEmail({...car, cc: event.target.value})}
+                            onChange={(event) => setCar({...car, cc: event.target.value})}
                         />
 
                         <TextField
@@ -84,7 +84,7 @@ export const AddCar = () => {
                             variant="outlined"
                             fullWidth
                             sx={{mb: 2}}
-                            onChange={(event) => setEmail({...car, hp: +event.target.value})}
+                            onChange={(event) => setCar({...car, hp: +event.target.value})}
                         />
 
                         <TextField
@@ -93,7 +93,7 @@ export const AddCar = () => {
                             variant="outlined"
                             fullWidth
                             sx={{mb: 2}}
-                            onChange={(event) => setEmail({...car, transmission_type: event.target.value})}
+                            onChange={(event) => setCar({...car, transmission_type: event.target.value})}
                         />
 
                         <Button type="submit">Add Cars</Button>

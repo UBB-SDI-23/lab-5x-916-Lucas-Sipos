@@ -1,9 +1,10 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.views import APIView
 from .models import Car, Buyer, DeliveryService, Company
 from .serializers import CarSerializer, BuyerSerializer, DeliverySerializer, CompanySerializer
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import Q
 
 
 class CarList(APIView):
@@ -84,6 +85,17 @@ class CarList(APIView):
         return Response({"status": "success", "data": "Item deleted"}, status=status.HTTP_200_OK)
 
 
+class CarListModel(ListCreateAPIView):
+    serializer_class = CarSerializer
+
+    def get_queryset(self):
+        car_name = self.kwargs.get("car_name")
+        queryset = Car.objects.all()
+        if car_name is not None and car_name != "*":
+            queryset = queryset.filter(model__icontains=car_name)
+        return queryset[:10]
+
+
 class BuyerList(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -143,6 +155,17 @@ class BuyerList(APIView):
         item = self.__queryset.get(id=id)
         item.delete()
         return Response({"status": "success", "data": "Item deleted"}, status=status.HTTP_200_OK)
+
+
+class BuyerListName(ListCreateAPIView):
+    serializer_class = BuyerSerializer
+
+    def get_queryset(self):
+        buyer_name = self.kwargs.get("buyer_name")
+        queryset = Buyer.objects.all()
+        if buyer_name is not None and buyer_name != "*":
+            queryset = queryset.filter(Q(first_name__icontains=buyer_name) | Q(last_name__icontains=buyer_name))
+        return queryset[:10]
 
 
 class DeliveryList(APIView):
@@ -281,19 +304,18 @@ class StatisticsView(APIView):
 
     @staticmethod
     def __young_drivers(request, page, offset):
-        buyers = Buyer.objects.all().order_by('age').filter(age__lte=40)[
-                 page * offset: (page + 1) * offset]
-        response = {}
+        buyers = Buyer.objects.all().order_by('age').filter(age__lte=40)[page * offset: (page + 1) * offset]
+        response = []
         i = page * offset
         for buyer in buyers:
             i += 1
-            response[i] = {
+            response.append({
                 "age": buyer.age,
                 "first_name": buyer.first_name,
                 "last_name": buyer.last_name,
                 "model": buyer.car.model,
                 "year": buyer.car.year,
-            }
+            })
         return Response({"status": "success", "young_drivers": response}, status=status.HTTP_200_OK)
 
     @staticmethod

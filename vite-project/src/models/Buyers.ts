@@ -6,5 +6,5 @@ export interface Buyers {
     last_name: string;
     age: number;
     sex: string;
-    car: Cars[];
+    car: number;
 }

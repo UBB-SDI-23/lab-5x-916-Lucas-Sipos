@@ -13,9 +13,9 @@ import {
     Button,
     Pagination
 } from "@mui/material";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
-import {Cars} from "../../models/Cars";
+import {Buyers} from "../../models/Buyers";
 import {BACKEND_API_URL} from "../../constants";
 import AddIcon from "@mui/icons-material/Add";
 import ReadMoreIcon from "@mui/icons-material/ReadMore";
@@ -25,40 +25,26 @@ import axios from "axios"
 import Car from "@mui/icons-material/CarRentalRounded";
 
 
-export const AllCars = () => {
+export const AllBuyers = () => {
     const [loading, setLoading] = useState(false);
-    const [cars, setCars] = useState<Cars[]>([]);
-    const [order, setOrder] = useState("asc");
+    const [buyers, setBuyers] = useState<Buyers[]>([]);
     const [page, setPage] = useState(1);
     useEffect(() => {
         setLoading(true);
-        fetch(`${BACKEND_API_URL}/cars/${page-1}`)
+        fetch(`${BACKEND_API_URL}/buyers/${page - 1}`)
             .then(async (response) => (await response.json()).data)
             .then((data) => {
-                setCars(data);
+                setBuyers(data);
                 setLoading(false);
             })
     }, [page]);
-    const sorting = () => {
-        if (order === "asc") {
-            const sorted = [...cars].sort((car1, car2) =>
-                car1.model.toLowerCase() > car2.model.toLowerCase() ? 1 : -1
-            );
-            setCars(sorted);
-            setOrder("des");
-        }
-        if (order === "des") {
-            const sorted = [...cars].sort((car1, car2) =>
-                car1.model.toLowerCase() < car2.model.toLowerCase() ? 1 : -1
-            );
-            setCars(sorted);
-            setOrder("asc");
-        }
-    }
-     const handlePageChange = (event: any, value: any) => {
+    const handlePageChange = (event: any, value: any) => {
         setPage(value);
     };
 
+    // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
     return (
         <Container>
             <Button
@@ -70,73 +56,68 @@ export const AllCars = () => {
             >
                 Back
             </Button>
-            <h1>All Cars</h1>
+            <h1>All Buyers</h1>
             {loading && <CircularProgress/>}
-            {!loading && cars.length === 0 && <p>No Cars found</p>}
+            {!loading && buyers.length === 0 && <p>No buyers found</p>}
             {!loading && (
-                <IconButton component={Link} sx={{mr: 3}} to={`/cars/add/`}>
-                    <Tooltip title="Add new car" arrow>
+                <IconButton component={Link} sx={{mr: 3}} to={`/buyers/add/`}>
+                    <Tooltip title="Add new buyer" arrow>
                         <AddIcon color="primary"/>
                     </Tooltip>
                 </IconButton>
             )}
-            {!loading && cars.length > 0 && (
+            {!loading && buyers.length > 0 && (
                 <><TableContainer component={Paper}>
                     <Table sx={{minWidth: 650}} aria-label="simple table">
                         <TableHead>
                             <TableRow>
                                 <TableCell>#</TableCell>
-                                <TableCell onClick={() => sorting()} align="center">Model</TableCell>
-                                <TableCell align="center">Year</TableCell>
-                                <TableCell align="center">Fuel Type</TableCell>
-                                <TableCell align="center">CC</TableCell>
-                                <TableCell align="center">HP</TableCell>
-                                <TableCell align="center">Transmission Type</TableCell>
+                                <TableCell align="center">First Name</TableCell>
+                                <TableCell align="center">Last Name</TableCell>
+                                <TableCell align="center">Age</TableCell>
+                                <TableCell align="center">Sex</TableCell>
+                                <TableCell align="center">Car</TableCell>
                                 <TableCell align="center">Operations</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {cars.map((car, index) => (
-                                <TableRow key={car.id}>
+                            {buyers.map((buyer, index) => (
+                                <TableRow key={buyer.id}>
                                     <TableCell component="th" scope="row">
                                         {(page - 1) * 1000 + index + 1}
                                     </TableCell>
                                     <TableCell component="th" scope="row">
-                                        {/*<Link to={`/cars/${car.id}/details`} title="View car details">*/}
-                                        {/*    {car.model}*/}
-                                        {/*</Link>*/}
-                                        {car.model}
+                                        {buyer.first_name}
                                     </TableCell>
                                     <TableCell component="th" scope="row" align="center">
-                                        {car.year}
+                                        {buyer.last_name}
                                     </TableCell>
                                     <TableCell component="th" scope="row" align="center">
-                                        {car.fuel_type}
+                                        {buyer.age}
                                     </TableCell>
                                     <TableCell component="th" scope="row" align="center">
-                                        {car.cc}
+                                        {buyer.sex}
                                     </TableCell>
                                     <TableCell component="th" scope="row" align="center">
-                                        {car.hp}
-                                    </TableCell>
-                                    <TableCell component="th" scope="row" align="center">
-                                        {car.transmission_type}
+                                        <Link to={`/cars/${buyer.car}/details`} title="View car details">
+                                            {buyer.car}
+                                        </Link>
                                     </TableCell>
                                     <TableCell align="right">
                                         {/*<IconButton*/}
                                         {/*    component={Link}*/}
                                         {/*    sx={{mr: 3}}*/}
-                                        {/*    to={`/cars/${car.id}/details`}>*/}
-                                        {/*    <Tooltip title="View car details" arrow>*/}
+                                        {/*    to={`/buyers/${buyer.id}/details`}>*/}
+                                        {/*    <Tooltip title="View buyer details" arrow>*/}
                                         {/*        <ReadMoreIcon color="primary"/>*/}
                                         {/*    </Tooltip>*/}
                                         {/*</IconButton>*/}
 
-                                        <IconButton component={Link} sx={{mr: 3}} to={`/cars/${car.id}/edit`}>
+                                        <IconButton component={Link} sx={{mr: 3}} to={`/buyers/${buyer.id}/edit`}>
                                             <EditIcon/>
                                         </IconButton>
 
-                                        <IconButton component={Link} sx={{mr: 3}} to={`/cars/${car.id}/delete`}>
+                                        <IconButton component={Link} sx={{mr: 3}} to={`/buyers/${buyer.id}/delete`}>
                                             <DeleteForeverIcon sx={{color: "red"}}/>
                                         </IconButton>
                                     </TableCell>

@@ -7,11 +7,13 @@ import {
     TableBody,
     Container,
     TableCell,
-    CircularProgress,
+    CircularProgress, Button, Pagination,
 } from "@mui/material"
 import {useEffect, useState} from "react";
 import {BACKEND_API_URL} from "../../constants";
-import {Cars} from "../../models/Cars";
+import {Link} from "react-router-dom";
+import Car from "@mui/icons-material/CarRentalRounded";
+import {forEach} from "lodash";
 
 export const Statistic1 = () => {
     interface Stat1Type {
@@ -21,34 +23,42 @@ export const Statistic1 = () => {
         model: string,
         year: number,
     }
+
     const [loading, setLoading] = useState(false);
     const [stats, setStats] = useState<Stat1Type[]>([]);
-
+    const [page, setPage] = useState(1);
 
 
     useEffect(() => {
         setLoading(true);
-        fetch(`${BACKEND_API_URL}/statistics/1/`)
-            .then(async (response) => {
-                const jsn = await response.text();
-                const arr: Stat1Type[] = (JSON.parse(jsn))["young_drivers"];
-                setStats(Object.values(arr));
-            })
-            .catch((error) => {
-                alert(error);
-            })
-            .finally(() => {
+        fetch(`${BACKEND_API_URL}/statistics/1/${page - 1}`)
+            .then(async (response) => (await response.json()).young_drivers)
+            .then((data) => {
+                setStats(data);
                 setLoading(false);
-            });
-    }, []);
+            })
+    }, [page]);
 
+    const handlePageChange = (event: any, value: any) => {
+        setPage(value);
+    };
+
+    // @ts-ignore
     return (
         <Container>
+            <Button
+                to="/"
+                component={Link}
+                color="inherit"
+                sx={{mr: 5}}
+                startIcon={<Car/>}
+            >
+                Back
+            </Button>
             <h1>Young Drivers</h1>
 
             {loading && <CircularProgress/>}
-            {!loading && stats.length > 0 && (
-                <TableContainer component={Paper}>
+            {!loading && stats !== null && <><TableContainer component={Paper}>
                     <Table sx={{minWidth: 650}} aria-label="simple table">
                         <TableHead>
                             <TableRow>
@@ -63,7 +73,7 @@ export const Statistic1 = () => {
                         <TableBody>
                             {stats.map((item, index) => (
                                 <TableRow key={index + 1}>
-                                    <TableCell component="th" scope="row">{index + 1}</TableCell>
+                                    <TableCell component="th" scope="row">{(page - 1) * 1000 + index + 1}</TableCell>
                                     <TableCell component="th" scope="row">{item.age}</TableCell>
                                     <TableCell component="th" scope="row">{item.first_name}</TableCell>
                                     <TableCell component="th" scope="row">{item.last_name}</TableCell>
@@ -74,7 +84,14 @@ export const Statistic1 = () => {
                         </TableBody>
                     </Table>
                 </TableContainer>
-            )}
+                    <Pagination
+                        count={385}
+                        page={page}
+                        onChange={handlePageChange}
+                        sx={{display: 'flex', justifyContent: 'center', mt: 2}}
+                    />
+                </>}
         </Container>
-    );
+    )
+        ;
 }

@@ -4,29 +4,29 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import axios from "axios";
 import { BACKEND_API_URL } from "../../constants";
 
-export const DeleteCar = () => {
-	const { carID } = useParams();
+export const DeleteCompany = () => {
+	const { companyID } = useParams();
 	const navigate = useNavigate();
 
 	const handleDelete = async (event: { preventDefault: () => void }) => {
 		event.preventDefault();
-		await axios.delete(`${BACKEND_API_URL}cars/?id=${carID}`);
-		navigate("/cars");
+		await axios.delete(`${BACKEND_API_URL}company/?id=${companyID}`);
+		navigate("/company");
 	};
 
 	const handleCancel = (event: { preventDefault: () => void }) => {
 		event.preventDefault();
-		navigate("/cars");
+		navigate("/company");
 	};
 
 	return (
 		<Container>
 			<Card>
 				<CardContent>
-					<IconButton component={Link} sx={{ mr: 3 }} to={`/cars`}>
+					<IconButton component={Link} sx={{ mr: 3 }} to={`/company`}>
 						<ArrowBackIcon />
 					</IconButton>{" "}
-					Are you sure you want to delete this car? This cannot be undone!
+					Are you sure you want to delete this company? This cannot be undone!
 				</CardContent>
 				<CardActions>
 					<Button onClick={handleDelete}>Delete it</Button>

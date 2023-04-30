@@ -7,9 +7,11 @@ urlpatterns = [
     path('cars/', CarList.as_view()),
     path('cars/<int:page>/', CarList.as_view()),
     path('cars/<int:more>/add-buyer/', CarList.as_view()),
+    path('cars/<str:car_name>/', CarListModel.as_view()),
 
     path('buyers/', BuyerList.as_view()),
     path('buyers/<int:page>/', BuyerList.as_view()),
+    path('buyers/<str:buyer_name>/', BuyerListName.as_view()),
 
     path('delivs/', DeliveryList.as_view()),
     path('delivs/<int:page>/', DeliveryList.as_view()),
